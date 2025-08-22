@@ -1,0 +1,91 @@
+name: 🎮 Daily Trolley Game Player
+
+on:
+  schedule:
+    # Run daily at 6:00 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual triggering
+    inputs:
+      scenarios:
+        description: 'Number of scenarios to play'
+        required: false
+        default: '5'
+        type: string
+
+jobs:
+  play-game:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    - name: ⚙️ Configure for automated run
+      run: |
+        # Set headless mode for CI
+        sed -i 's/"headless": false/"headless": true/' config/config.json
+        
+        # Set scenario count from input or default
+        SCENARIOS="${{ github.event.inputs.scenarios || '5' }}"
+        sed -i "s/\"maxScenarios\": [0-9]*/\"maxScenarios\": $SCENARIOS/" config/config.json
+        
+        echo "Configuration updated:"
+        cat config/config.json
+
+    - name: 🎮 Play trolley game
+      run: |
+        echo "🚂 Starting automated trolley problem game session..."
+        npm run play
+        echo "🎯 Game session completed!"
+
+    - name: 📊 Generate summary
+      run: |
+        echo "## 🎮 Daily Game Run Summary" >> $GITHUB_STEP_SUMMARY
+        echo "**Date:** $(date -u +"%Y-%m-%d %H:%M UTC")" >> $GITHUB_STEP_SUMMARY
+        
+        # Count scenarios played
+        if [ -f logs/*.log ]; then
+          SCENARIOS_PLAYED=$(grep -c "appears successful" logs/*.log || echo "0")
+          TOTAL_REQUESTS=$(grep -c "Network request" logs/*.log || echo "0")
+          CONSOLE_MESSAGES=$(wc -l < logs/*-console.json 2>/dev/null || echo "0")
+          
+          echo "**Scenarios played:** $SCENARIOS_PLAYED" >> $GITHUB_STEP_SUMMARY
+          echo "**Network requests:** $TOTAL_REQUESTS" >> $GITHUB_STEP_SUMMARY  
+          echo "**Console messages:** $CONSOLE_MESSAGES" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ✅ Success" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "**Status:** ❌ No logs generated" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: 📁 Archive game session data
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: daily-game-session-${{ github.run_number }}
+        path: |
+          logs/
+          screenshots/
+        retention-days: 30
+
+    - name: 🔍 Display recent logs
+      if: always()
+      run: |
+        echo "=== Recent Game Activity ==="
+        if [ -f logs/*.log ]; then
+          echo "Latest log entries:"
+          tail -20 logs/*.log
+        fi
+        
+        if [ -f logs/*-network.json ]; then
+          echo "Network activity summary:"
+          jq -r '.[] | "[\(.timestamp)] \(.method) \(.url) - \(.status)"' logs/*-network.json | tail -10
+        fi

@@ -1,0 +1,66 @@
+name: 🤖 Jenkins Game Player Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run daily at 6:00 AM UTC (matches the game schedule)
+    - cron: '0 6 * * *'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    - name: 🧪 Run setup verification
+      run: npm run setup
+
+    - name: 🎮 Test game player (headless mode)
+      run: |
+        # Configure for headless mode in CI
+        sed -i 's/"headless": false/"headless": true/' config/config.json
+        sed -i 's/"maxScenarios": 5/"maxScenarios": 2/' config/config.json
+        npm run play
+      env:
+        CI: true
+
+    - name: 📊 Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ github.run_number }}
+        path: |
+          logs/
+          screenshots/
+        retention-days: 7
+
+    - name: ✅ Verify logs were created
+      run: |
+        echo "Checking for log files..."
+        ls -la logs/
+        echo "Checking for screenshots..."
+        ls -la screenshots/
+        
+        # Verify we have actual log content
+        if [ -f logs/*.log ]; then
+          echo "✅ Log files created successfully"
+          echo "Latest log summary:"
+          tail -10 logs/*.log
+        else
+          echo "❌ No log files found"
+          exit 1
+        fi
