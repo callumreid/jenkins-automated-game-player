@@ -2,8 +2,10 @@ name: 🎮 Daily Trolley Game Player
 
 on:
   schedule:
-    # Run daily at 6:00 AM UTC
+    # Run daily at 6:00 AM UTC (main production run)
     - cron: '0 6 * * *'
+    # Test run at 3:39 PM UTC (15:39) for verification
+    - cron: '39 15 * * *'
   workflow_dispatch: # Allow manual triggering
     inputs:
       scenarios:
@@ -43,7 +45,15 @@ jobs:
 
     - name: 🎮 Play trolley game
       run: |
-        echo "🚂 Starting automated trolley problem game session..."
+        CURRENT_HOUR=$(date -u +%H)
+        if [ "$CURRENT_HOUR" = "06" ]; then
+          echo "🌅 Starting MAIN daily trolley game session (6:00 AM UTC)..."
+        elif [ "$CURRENT_HOUR" = "15" ]; then
+          echo "🧪 Starting TEST trolley game session (3:39 PM UTC)..."
+        else
+          echo "🚂 Starting automated trolley problem game session..."
+        fi
+        
         npm run play
         echo "🎯 Game session completed!"
 

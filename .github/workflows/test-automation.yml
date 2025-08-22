@@ -1,0 +1,121 @@
+name: 🧪 Test Daily Automation
+
+on:
+  schedule:
+    # Test run at 3:39 PM UTC daily for verification
+    - cron: '39 15 * * *'
+    # Additional test run at 11:11 AM UTC (because 11:11!)
+    - cron: '11 11 * * *'
+  workflow_dispatch: # Allow manual triggering
+    inputs:
+      test_scenarios:
+        description: 'Number of scenarios for testing'
+        required: false
+        default: '2'
+        type: string
+
+jobs:
+  test-automation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    - name: ⚙️ Configure for test run
+      run: |
+        # Set headless mode for CI
+        sed -i 's/"headless": false/"headless": true/' config/config.json
+        
+        # Use fewer scenarios for testing to be gentle on the game
+        TEST_SCENARIOS="${{ github.event.inputs.test_scenarios || '2' }}"
+        sed -i "s/\"maxScenarios\": [0-9]*/\"maxScenarios\": $TEST_SCENARIOS/" config/config.json
+        
+        # Set random strategy to vary the testing
+        sed -i 's/"strategy": "[^"]*"/"strategy": "random"/' config/config.json
+        
+        echo "Test configuration:"
+        cat config/config.json
+
+    - name: 🧪 Run automation test
+      run: |
+        echo "🧪 Starting automation test at $(date -u)"
+        echo "This is a verification run to ensure daily automation works correctly"
+        npm run play
+        echo "✅ Automation test completed at $(date -u)"
+
+    - name: 📊 Test Summary
+      run: |
+        echo "## 🧪 Automation Test Summary" >> $GITHUB_STEP_SUMMARY
+        echo "**Test Time:** $(date -u +"%Y-%m-%d %H:%M UTC")" >> $GITHUB_STEP_SUMMARY
+        echo "**Purpose:** Verify daily automation functionality" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f logs/*.log ]; then
+          SCENARIOS_PLAYED=$(grep -c "appears successful" logs/*.log || echo "0")
+          TOTAL_REQUESTS=$(grep -c "Network request" logs/*.log || echo "0")
+          
+          echo "**Test Results:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Scenarios played: $SCENARIOS_PLAYED" >> $GITHUB_STEP_SUMMARY
+          echo "- Network requests: $TOTAL_REQUESTS" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$SCENARIOS_PLAYED" -gt "0" ] && [ "$TOTAL_REQUESTS" -gt "10" ]; then
+            echo "- Status: ✅ **AUTOMATION WORKING**" >> $GITHUB_STEP_SUMMARY
+            echo "🎉 Daily automation is functioning correctly!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Status: ⚠️ **NEEDS INVESTIGATION**" >> $GITHUB_STEP_SUMMARY
+            echo "🔍 Automation may need debugging" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "**Status:** ❌ **TEST FAILED - NO LOGS**" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+        echo "- If tests pass, the 6:00 AM production run should work" >> $GITHUB_STEP_SUMMARY
+        echo "- Check artifacts below for detailed logs and screenshots" >> $GITHUB_STEP_SUMMARY
+
+    - name: 📁 Upload test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: automation-test-${{ github.run_number }}-${{ github.run_attempt }}
+        path: |
+          logs/
+          screenshots/
+        retention-days: 14
+
+    - name: 📋 Show test details
+      if: always()
+      run: |
+        echo "=== Automation Test Details ==="
+        echo "Workflow: ${{ github.workflow }}"
+        echo "Run ID: ${{ github.run_id }}"
+        echo "Run Number: ${{ github.run_number }}"
+        echo "Triggered by: ${{ github.event_name }}"
+        
+        if [ -f logs/*.log ]; then
+          echo ""
+          echo "=== Last 15 log entries ==="
+          tail -15 logs/*.log
+        fi
+
+    - name: 🔔 Test notification
+      run: |
+        echo "🧪 Automation test completed!"
+        echo "This test verifies that GitHub Actions can successfully:"
+        echo "  ✅ Install dependencies" 
+        echo "  ✅ Configure the game player"
+        echo "  ✅ Run the automation"
+        echo "  ✅ Generate logs and screenshots"
+        echo "  ✅ Upload artifacts"
+        echo ""
+        echo "If this workflow succeeds, your 6:00 AM daily runs should work perfectly! 🎉"
