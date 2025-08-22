@@ -1,0 +1,107 @@
+name: 🕓 Today 4PM Test Run
+
+on:
+  schedule:
+    # Run at 4:00 PM UTC (16:00) - you can adjust this to your timezone
+    - cron: '0 16 * * *'
+  workflow_dispatch: # Allow immediate manual triggering
+
+jobs:
+  today-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 🔧 Install dependencies
+      run: npm ci
+
+    - name: ⚙️ Configure for 4PM test
+      run: |
+        # Set headless mode for CI
+        sed -i 's/"headless": false/"headless": true/' config/config.json
+        
+        # Use 3 scenarios for a thorough but not overwhelming test
+        sed -i 's/"maxScenarios": [0-9]*/"maxScenarios": 3/' config/config.json
+        
+        # Set random strategy
+        sed -i 's/"strategy": "[^"]*"/"strategy": "random"/' config/config.json
+        
+        echo "4PM Test Configuration:"
+        cat config/config.json
+
+    - name: 🕓 4PM Test Run
+      run: |
+        echo "🕓 Starting special 4:00 PM test run at $(date -u)"
+        echo "This is your requested test to verify daily automation works!"
+        echo ""
+        npm run play
+        echo ""
+        echo "✅ 4:00 PM test completed at $(date -u)"
+
+    - name: 📊 4PM Test Results
+      run: |
+        echo "## 🕓 4:00 PM Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "**Test Time:** $(date -u +"%Y-%m-%d %H:%M UTC")" >> $GITHUB_STEP_SUMMARY
+        echo "**Purpose:** Special test run requested for today at 4PM" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f logs/*.log ]; then
+          SCENARIOS_PLAYED=$(grep -c "appears successful" logs/*.log || echo "0")
+          TOTAL_REQUESTS=$(grep -c "Network request" logs/*.log || echo "0")
+          CONSOLE_MESSAGES=$(wc -l < logs/*-console.json 2>/dev/null || echo "0")
+          
+          echo "**🎮 Game Results:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Scenarios completed: $SCENARIOS_PLAYED" >> $GITHUB_STEP_SUMMARY
+          echo "- Network requests: $TOTAL_REQUESTS" >> $GITHUB_STEP_SUMMARY
+          echo "- Console messages: $CONSOLE_MESSAGES" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$SCENARIOS_PLAYED" -gt "0" ] && [ "$TOTAL_REQUESTS" -gt "15" ]; then
+            echo "**Status: 🎉 SUCCESS!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ The automation is working perfectly!" >> $GITHUB_STEP_SUMMARY
+            echo "✅ Your daily 6:00 AM runs should work great!" >> $GITHUB_STEP_SUMMARY
+            echo "✅ The 3:45 PM verification tests will also work!" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Status: ⚠️ Needs attention**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "🔍 Something may need debugging" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "**Status: ❌ Failed - No logs generated**" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+        echo "- Check the artifacts below for detailed logs and screenshots" >> $GITHUB_STEP_SUMMARY
+        echo "- If this test passes, your automation setup is perfect!" >> $GITHUB_STEP_SUMMARY
+
+    - name: 📁 Upload 4PM test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: 4pm-test-results-${{ github.run_number }}
+        path: |
+          logs/
+          screenshots/
+        retention-days: 7
+
+    - name: 🎉 4PM Test Summary
+      run: |
+        echo "🕓 4:00 PM Test Run Complete!"
+        echo ""
+        echo "This special test was requested to verify your daily automation."
+        echo "If this succeeds, you can be confident that:"
+        echo "  ✅ Your 6:00 AM daily runs will work"
+        echo "  ✅ Your 3:45 PM verification runs will work" 
+        echo "  ✅ The 11:11 AM bonus runs will work"
+        echo ""
+        echo "Check the workflow summary above for detailed results! 📊"
