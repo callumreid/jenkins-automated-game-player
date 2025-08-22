@@ -1,5 +1,8 @@
 # Jenkins Automated Game Player
 
+[![🎮 Daily Trolley Game Player](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/daily-game.yml/badge.svg)](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/daily-game.yml)
+[![🤖 Jenkins Game Player Tests](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/test.yml/badge.svg)](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/test.yml)
+
 An automated web game player designed to play the "Trolley Problem" style game on trollilopolis.com once per day. This project serves two main purposes:
 
 1. **Keep the game active**: Prevents the game's backend and database from shutting down due to inactivity
@@ -260,6 +263,23 @@ For issues, questions, or contributions:
 2. Review this documentation
 3. Test with manual execution first
 4. Create an issue with log files and configuration
+
+## GitHub Repository
+
+🔗 **Repository**: https://github.com/callumreid/jenkins-automated-game-player
+
+### GitHub Actions
+- **🎮 Daily Game Player**: Automatically runs at 6:00 AM UTC daily
+- **🤖 Test Suite**: Runs on pushes and pull requests
+- **📊 Artifacts**: Logs and screenshots saved for 30 days
+- **🚀 Manual Dispatch**: Trigger runs on-demand with custom scenario counts
+
+### Repository Features
+- ✅ **Automated daily gameplay** via GitHub Actions
+- ✅ **Comprehensive CI/CD** testing pipeline
+- ✅ **Artifact management** with automatic cleanup
+- ✅ **Workflow summaries** with game statistics
+- ✅ **Manual triggers** for testing and debugging
 
 ## License
 
