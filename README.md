@@ -1,6 +1,7 @@
 # Jenkins Automated Game Player
 
 [![🎮 Daily Trolley Game Player](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/daily-game.yml/badge.svg)](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/daily-game.yml)
+[![🕓 Today 4PM Test Run](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/today-4pm-test.yml/badge.svg)](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/today-4pm-test.yml)
 [![🧪 Test Daily Automation](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/test-automation.yml/badge.svg)](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/test-automation.yml)
 [![🤖 Jenkins Game Player Tests](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/test.yml/badge.svg)](https://github.com/callumreid/jenkins-automated-game-player/actions/workflows/test.yml)
 
