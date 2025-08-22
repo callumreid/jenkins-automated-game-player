@@ -2,8 +2,8 @@ name: 🧪 Test Daily Automation
 
 on:
   schedule:
-    # Test run at 3:39 PM UTC daily for verification
-    - cron: '39 15 * * *'
+    # Test run at 3:45 PM UTC daily for verification
+    - cron: '45 15 * * *'
     # Additional test run at 11:11 AM UTC (because 11:11!)
     - cron: '11 11 * * *'
   workflow_dispatch: # Allow manual triggering

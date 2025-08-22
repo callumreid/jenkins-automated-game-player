@@ -270,8 +270,8 @@ For issues, questions, or contributions:
 🔗 **Repository**: https://github.com/callumreid/jenkins-automated-game-player
 
 ### GitHub Actions
-- **🎮 Daily Game Player**: Main production runs at 6:00 AM UTC + test at 3:39 PM UTC
-- **🧪 Test Automation**: Verification runs at 3:39 PM & 11:11 AM UTC with 2 scenarios
+- **🎮 Daily Game Player**: Main production runs at 6:00 AM UTC + test at 3:45 PM UTC  
+- **🧪 Test Automation**: Verification runs at 3:45 PM & 11:11 AM UTC with 2 scenarios
 - **🤖 Test Suite**: Comprehensive testing on pushes and pull requests  
 - **📊 Artifacts**: Logs and screenshots saved (30 days for daily, 14 days for tests)
 - **🚀 Manual Dispatch**: Trigger runs on-demand with custom scenario counts
