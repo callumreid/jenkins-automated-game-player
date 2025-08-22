@@ -1,0 +1,45 @@
+{
+  "game": {
+    "url": "https://trollilopolis.com",
+    "startSelector": "img[src*='trolleyIntro'], img[alt*='start'], button, .start, [onclick], img[src*='png']",
+    "choiceSelectors": {
+      "left": "img[src*='left'], img[alt*='left'], .choice-left, button:first-of-type, img:first-of-type",
+      "right": "img[src*='right'], img[alt*='right'], .choice-right, button:last-of-type, img:last-of-type"
+    },
+    "instructionSelector": "#instruction, .instruction, .scenario-text",
+    "endSelector": ".end-screen, #game-over, .summary",
+    "maxScenarios": 5,
+    "waitTime": 2000
+  },
+  "browser": {
+    "headless": false,
+    "timeout": 45000,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "schedule": {
+    "dailyRunTime": "6:00",
+    "timezone": "America/New_York",
+    "enabled": true
+  },
+  "logging": {
+    "screenshotQuality": 80,
+    "logLevel": "info",
+    "retainLogs": 30,
+    "captureNetwork": true,
+    "captureConsole": true
+  },
+  "errorHandling": {
+    "maxRetries": 2,
+    "retryDelay": 5000,
+    "timeoutActions": 20000,
+    "takeScreenshotOnError": true,
+    "continueOnMinorErrors": true
+  },
+  "choices": {
+    "strategy": "random",
+    "pattern": ["left", "right", "left", "right"]
+  }
+}

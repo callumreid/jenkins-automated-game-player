@@ -1,0 +1,20 @@
+{
+  "name": "jenkins-automated-game-player",
+  "version": "1.0.0",
+  "description": "Automated web game player for trollilopolis.com - keeps the game active and serves as QA foundation",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "play": "node index.js --manual",
+    "status": "node index.js --status",
+    "setup": "node setup.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["automation", "puppeteer", "game-testing", "qa", "web-scraping"],
+  "author": "Bronson",
+  "license": "ISC",
+  "dependencies": {
+    "node-cron": "^4.2.1",
+    "puppeteer": "^24.17.0"
+  }
+}
